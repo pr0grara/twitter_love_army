@@ -105,9 +105,7 @@ let page = null;
   try {
     let previousHeight;
     for (let i = 0; i < 10; i++) {
-      const elementTweets = await page.$$(
-        "a.r-1re7ezh.r-1loqt21.r-1q142lx.r-1qd0xha.r-a023e6.r-16dba41.r-ad9z0x.r-bcqeeo.r-3s2u2q.r-qvutc0.css-4rbku5.css-18t94o4.css-901oao"
-      );
+      const elementTweets = await page.$$("a.r-1re7ezh.r-1loqt21.r-1q142lx.r-1qd0xha.r-a023e6.r-16dba41.r-ad9z0x.r-bcqeeo.r-3s2u2q.r-qvutc0.css-4rbku5.css-18t94o4.css-901oao");
       const propertyJsTweets = await Promise.all(
         elementTweets.map((tweet) => tweet.getProperty("href"))
       );
@@ -132,9 +130,8 @@ let page = null;
 
   // VISIT ALL TWEETS, LIKE & RETWEET WITH QUOTE FROM tweet OBJECT
   const urls = Array.from(tweetsSet);
-  for (let i = 0; i < urls.length; i++) {
-    //iterate through all urls gathered previously
-    let j = Math.floor(Math.random() * 50); //select tweet at random (see line 153)
+  for (let i = 0; i < urls.length; i++) { //iterate through all urls gathered previously
+    let j = Math.floor(Math.random() * 50); //used to select tweet at random (see line 150)
     try {
       const url = urls[i];
       console.log(url);
@@ -148,13 +145,9 @@ let page = null;
       }
       await page.click('div[data-testid="retweet"]');
       await page.waitFor(500 + Math.floor(Math.random() * 100));
-      await page.click(
-        'a[class="css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-18u37iz r-1ny4l3l r-1j3t67a r-9qu9m4 r-o7ynqc r-6416eg r-13qz1uu"]'
-      );
+      await page.click('a[class="css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-18u37iz r-1ny4l3l r-1j3t67a r-9qu9m4 r-o7ynqc r-6416eg r-13qz1uu"]');
       await page.waitFor(500 + Math.floor(Math.random() * 100));
-      await page.type('div[data-testid="tweetTextarea_0"]', tweets[j], {
-        delay: 25,
-      });
+      await page.type('div[data-testid="tweetTextarea_0"]', tweets[j], {delay: 25,});
       await page.waitFor(300 + Math.floor(Math.random() * 200));
       await page.keyboard.press("Enter");
       await page.click('div[data-testid="tweetButton"]');
