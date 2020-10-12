@@ -96,7 +96,7 @@ let page = null;
   //SEARCH TERM
   await page.waitFor('input[data-testid="SearchBox_Search_Input"]');
   await page.type(
-    'input[data-testid="SearchBox_Search_Input"]', `${armoHashtags.stopAli}`, { delay: 25 }
+    'input[data-testid="SearchBox_Search_Input"]', `${armoHashtags.stopAli}`, { delay: 25 } //replace armoHashtags.stopAli with any other hashtag from armoHash object (see line 57)
   );
   await page.keyboard.press("Enter");
   await page.waitFor(2000);
