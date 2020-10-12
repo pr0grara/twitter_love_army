@@ -68,8 +68,8 @@ const armoHashtags = {
 };
 
 const puppeteer = require("puppeteer");
-const username = users.esh.username; //replace esh with desired user 
-const password = users.esh.password; //replace esh with desired user 
+const username = users.esh.username; //replace esh with desired user
+const password = users.esh.password; //replace esh with desired user
 
 let browser = null;
 let page = null;
@@ -95,8 +95,7 @@ let page = null;
 
   //SEARCH TERM
   await page.waitFor('input[data-testid="SearchBox_Search_Input"]');
-  await page.type(
-    'input[data-testid="SearchBox_Search_Input"]', `${armoHashtags.stopAli}`, { delay: 25 } //replace armoHashtags.stopAli with any other hashtag from armoHash object (see line 57)
+  await page.type('input[data-testid="SearchBox_Search_Input"]',`${armoHashtags.stopAli}`, { delay: 25 } //replace armoHashtags.stopAli with any other hashtag from armoHash object (see line 57)
   );
   await page.keyboard.press("Enter");
   await page.waitFor(2000);
@@ -133,8 +132,9 @@ let page = null;
 
   // VISIT ALL TWEETS, LIKE & RETWEET WITH QUOTE FROM tweet OBJECT
   const urls = Array.from(tweetsSet);
-  for (let i = 0; i < urls.length; i++) { //iterate through all urls gathered previously
-    let j = Math.floor(Math.random() * 50) //select tweet at random (see line 153) 
+  for (let i = 0; i < urls.length; i++) {
+    //iterate through all urls gathered previously
+    let j = Math.floor(Math.random() * 50); //select tweet at random (see line 153)
     try {
       const url = urls[i];
       console.log(url);
@@ -148,11 +148,15 @@ let page = null;
       }
       await page.click('div[data-testid="retweet"]');
       await page.waitFor(500 + Math.floor(Math.random() * 100));
-      await page.click('a[class="css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-18u37iz r-1ny4l3l r-1j3t67a r-9qu9m4 r-o7ynqc r-6416eg r-13qz1uu"]');
+      await page.click(
+        'a[class="css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-18u37iz r-1ny4l3l r-1j3t67a r-9qu9m4 r-o7ynqc r-6416eg r-13qz1uu"]'
+      );
       await page.waitFor(500 + Math.floor(Math.random() * 100));
-      await page.type('div[data-testid="tweetTextarea_0"]', tweets[j], { delay: 25 });
+      await page.type('div[data-testid="tweetTextarea_0"]', tweets[j], {
+        delay: 25,
+      });
       await page.waitFor(300 + Math.floor(Math.random() * 200));
-      await page.keyboard.press('Enter');
+      await page.keyboard.press("Enter");
       await page.click('div[data-testid="tweetButton"]');
       await page.waitFor(5000 + Math.floor(Math.random() * 1000));
       await page.goBack();
