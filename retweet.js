@@ -55,16 +55,16 @@ const tweets = {
   50: "Artsakh is not Azerbaijan. Artsakh is Armenia. #PeaceForArmenia #RecognizeArtsakh #ArtsakhStrong #StopAliyev #StopErdogan #SanctionTurkey #SanctionAzerbaijan #Artsakh #Armenia #Azerrbaijan #Turkey",
 };
 const armoHashtags = {
-  'artStrong': "#ArtsakhStrong",
-  'artIsArm': "#ArtsakhIsArmenia",
-  'stopAli': "#StopAliyev",
-  'sancAzer': "#SanctionAzerbaijan",
-  'sancTurk': "#SanctionTurkey",
-  'recArt': "#RecognizeArtsakh",
-  'peace': "#PeaceForArmenia",
-  "believe": "#BelieveArmenia",
-  "lies": "#AzerbaijanLies",
-  "artStrong": "#ArtsakhStrong",
+  artStrong: "#ArtsakhStrong",
+  artIsArm: "#ArtsakhIsArmenia",
+  stopAli: "#StopAliyev",
+  sancAzer: "#SanctionAzerbaijan",
+  sancTurk: "#SanctionTurkey",
+  recArt: "#RecognizeArtsakh",
+  peace: "#PeaceForArmenia",
+  believe: "#BelieveArmenia",
+  lies: "#AzerbaijanLies",
+  artStrong: "#ArtsakhStrong",
 };
 
 const puppeteer = require("puppeteer");
@@ -105,7 +105,7 @@ let page = null;
   let tweetsSet = new Set();
   try {
     let previousHeight;
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 10; i++) {
       const elementTweets = await page.$$(
         "a.r-1re7ezh.r-1loqt21.r-1q142lx.r-1qd0xha.r-a023e6.r-16dba41.r-ad9z0x.r-bcqeeo.r-3s2u2q.r-qvutc0.css-4rbku5.css-18t94o4.css-901oao"
       );
