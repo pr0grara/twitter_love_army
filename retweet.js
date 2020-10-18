@@ -1,6 +1,9 @@
 const startTime = Date.now();
+const FIVE_MINUTES = 1000 * 60 * 5;
+const THIRTY_MINUTES = 1000 * 60 * 30;
+
 const users = {
-  demo: { username: "azerihivan", password: "AliyevEatsDonkeyAss" }, //add your users to this object
+  demo: { username: "azerihivan", password: "AliyevEatsDonkeyAss" }, //remove this khiar and add your users to this object
 };
 
 const hashtags = {
@@ -16,8 +19,26 @@ const hashtags = {
   azeriLies: "#AzerbaijanLies",
 };
 
-const targetHash = hashtags.recArt; //specify target hashtag
+//ENTER ALL SPECIFICATIONS HERE
 const user = users.demo; //specify user 
+const targetHash = hashtags.stopAli; //specify target hashtag
+const mainDelay = [1500, 100000]; //first num is fixed delay amount, second num is additional max value for randomly set delay amount
+const scrollCount = 10; //set number of times to scroll-to-bottom looking for new tweets
+const P = 0.3; //probability of tweeting without hashtags
+const tweetsTillLunch = 50; //tweets till cooldown
+const BREAK = FIVE_MINUTES; //selected break length
+//MAKE SURE YOU ADD A VALID USER 
+
+const estimator = delays => {
+  let fixed = delays[0];
+  let avgRando = delays[1] / 2;
+  let looseChange = 15000;
+  let milis = Math.ceil(fixed + avgRando + looseChange);
+  let seconds = Math.ceil(milis / 1000);
+  return seconds
+}
+
+const estimate = estimator(mainDelay);
 
 const tweets = {
   0: "Armenia and Artsakh are under attack. Bring awareness to this cause to stop Azerbaijan and Turkey in this genocidal campaign.",
@@ -74,7 +95,7 @@ const tweets = {
   51: "imagine the denial of what happened during WW1 leading to WW3",
 };
 
-const twoHash = "#RecognizeArtsakh #SanctionTurkey";
+const twoHash = "#RecognizeArtsakh #SanctionTurkey ";
 
 const puppeteer = require("puppeteer");
 const username = user.username;
@@ -102,13 +123,13 @@ let page = null;
     await page.type('input[name="session[password]"]', password, { delay: 50 });
     await page.click('div[data-testid="LoginForm_Login_Button"]');
   } catch(e) {
-    console.log('LogIn Error')
+    console.log('LogIn Error');
   }
 
   //SEARCH TERM
   try {
     await page.waitFor('input[data-testid="SearchBox_Search_Input"]');
-    await page.waitFor(1500)
+    await page.waitFor(1500);
     await page.type(
       'input[data-testid="SearchBox_Search_Input"]',
       targetHash,
@@ -117,14 +138,14 @@ let page = null;
     await page.keyboard.press("Enter");
     await page.waitFor(2000);
   } catch (e) {
-    console.log('SearchTerm Error')
+    console.log('SearchTerm Error');
   }
 
   //SCROLL DOWN + GET TWEETS
   let tweetsSet = new Set();
   try {
     let previousHeight;
-    for (let i = 0; i < 10; i++) { //specify number of times puppeteer scrolls to bottom to obtain new tweets
+    for (let i = 0; i < scrollCount; i++) { //number of times puppeteer scrolls to bottom for new tweets
       var elementTweets;
       try {
         elementTweets = await page.$$("a.r-1re7ezh.r-1loqt21.r-1q142lx.r-1qd0xha.r-a023e6.r-16dba41.r-ad9z0x.r-bcqeeo.r-3s2u2q.r-qvutc0.css-4rbku5.css-18t94o4.css-901oao");
@@ -148,27 +169,32 @@ let page = null;
     }
   } catch (e) {
     console.log("ScrollDown/GetTweets Error");
-    // console.log(e);
   }
-  const setSize = tweetsSet.size
+  const setSize = tweetsSet.size;
+  var breakCount = Math.floor(setSize / tweetsTillLunch)
   console.log(tweetsSet);
-  console.log(`tweets obtained: ${setSize}`)
-  console.log(`estimated time: ${setSize * 5}m`)
+  console.log(`tweets obtained: ${setSize}`);
+  console.log(`estimated time: ${Math.ceil(setSize * estimate / 60) + (breakCount * BREAK / 1000 / 60)} min`);
 
   // VISIT ALL TWEETS AND CLICK LIKE
   const urls = Array.from(tweetsSet);
   var url;
   var tweetCount = 0;
+  var failCount = 0;
+  var noHashCount = 0;
+
   for (let i = 0; i < urls.length; i++) {
+    let noHash = false;
     let num = Math.random();
-    var tweet = num > 0.3 ? tweets[i] + " " + twoHash : tweets[i];    
-    let j = Math.floor(Math.random() * tweets.length - 1);
+    if (num <= P) [noHashCount, noHash] = [noHashCount + 1, true];
+    let idx = Math.floor((Object.values(tweets).length - 1) * num);
+    var tweet = num > P ? tweets[idx] + " " + twoHash : tweets[idx];    
     try {
       url = urls[i];
       console.log(url);
       await page.goto(`${url}`);
 
-      await page.waitFor(180000 + Math.floor(Math.random() * 120000)); //big time delay here
+      await page.waitFor(mainDelay[0] + Math.floor(Math.random() * mainDelay[1])); //big time delay here
       const likes = await page.$$('div[data-testid="like"]');
       if (likes.length > 0) {
         await page.click('div[data-testid="like"]');
@@ -176,24 +202,55 @@ let page = null;
       }
       await page.click('div[data-testid="retweet"]');
       await page.waitFor(2000 + Math.floor(Math.random() * 200));
-      await page.click('a[class="css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-18u37iz r-1ny4l3l r-1j3t67a r-9qu9m4 r-o7ynqc r-6416eg r-13qz1uu"]');
+      try {
+        await page.click('a[class="css-4rbku5 css-18t94o4 css-1dbjc4n r-1loqt21 r-18u37iz r-1ny4l3l r-1j3t67a r-9qu9m4 r-o7ynqc r-6416eg r-13qz1uu"]');
+      } catch {
+        failCount++;
+        console.log('Quote Tweet option not found');
+        console.log('------');
+        continue
+      }
       await page.waitFor(500 + Math.floor(Math.random() * 200));
       await page.type('div[data-testid="tweetTextarea_0"]', tweet, {delay: 50,});
       await page.waitFor(500 + Math.floor(Math.random() * 200));
-      await page.click('div[data-testid="tweetButton"]');
-      await page.click('div[data-testid="tweetButton"]');
-      tweetCount++;
-      console.log(hashedTweets[j].slice(0, 60) + '... retweeted')
+      try {
+        await page.click('div[data-testid="tweetButton"]');
+        console.log(tweet.slice(0, 60) + `... ${noHash ? '[NO HASH]' : ''}`);
+        tweetCount++;
+      } catch {
+        failCount++;
+        console.log('Typing/Submitting Tweet Error');
+        console.log('------');
+      }
       await page.waitFor(5000 + Math.floor(Math.random() * 1000));
       await page.goBack();
+
+      if (tweetCount > 0 && tweetCount % tweetsTillLunch === 0) {
+        breakCount--;
+        console.log(`out to lunch, will be back at ${Date.now() + BREAK}`);
+        await page.waitFor(BREAK);
+      }
     } catch (e) {
-      console.log(`Failed to Retweet @ ${url}`)
+      failCount++
+      console.log(`Failed to Retweet @ ${url}`);
+      console.log('------');
     }
-    console.log('------')
+    let remainingCount = setSize - tweetCount - failCount;
+    console.log(`tweets: ${tweetCount} | failed tweets: ${failCount} | tweets remaining: ${remainingCount}`);
+    console.log(`elapsed time: ${Math.ceil((Date.now() - startTime) / 1000 / 60)} min | time remaining: ~${Math.ceil(remainingCount * estimate / 60) + (breakCount * BREAK / 1000 / 60)} min`);
+    console.log('------');
   }
+
   browser.close();
+
   const endTime = Date.now();
   const elapsedTime = endTime - startTime;
-  console.log(`retweeted ${tweetCount + tweetCount > 1 ? ' times' : ' time'} for user ${username}`)
-  console.log(`elapsed time: ${elapsedTime / 1000}s`)
+
+  console.log('FIN');
+  console.log(`user: ${username}`);
+  console.log(`retweets: ${tweetCount}`);
+  console.log(`hashtags: ${twoHash}`);
+  console.log(`errors: ${failCount} (${Math.ceil(failCount / tweetCount * 100)}%)`);
+  console.log(`${noHashCount} ${noHashCount !== 1 ? 'tweets' : 'tweet'} w/out hashtags`);
+  console.log(`elapsed time: ${Math.ceil(elapsedTime / 1000 / 60)} min`);
 })();
